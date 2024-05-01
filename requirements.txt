@@ -1,0 +1,5 @@
+aiogram>=3.5.0
+fastapi>=0.110.2
+python-dotenv>=1.0.1
+redis>=5.0.4
+uvicorn>=0.29.0

@@ -1,0 +1,5 @@
+venv/
+.fleet/
+.idea/
+__pycache__/
+*.env
