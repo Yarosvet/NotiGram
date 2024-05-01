@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Body, Response
 from redis.asyncio import StrictRedis
 
-from .bot import bot, bot_webhook, start_polling, spread_notifications
+from .bot import bot, bot_webhook, start_polling, spread_notifications, init_bot_meta
 from .config import WEBHOOK_URL, USE_WEBHOOK, WEBHOOK_PATH, REDIS_URL
 
 
@@ -22,6 +22,7 @@ async def lifespan(application: FastAPI):  # pylint: disable=unused-argument  # 
         await bot.delete_webhook()
         polling_task = asyncio.create_task(start_polling())
     try:
+        await init_bot_meta()
         yield
     finally:
         if polling_task:
