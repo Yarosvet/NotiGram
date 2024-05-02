@@ -36,6 +36,12 @@ async def unsubscribe_chat(channel_id: str, chat_id: int):
         await redis.srem(channel_id, chat_id)
 
 
+async def subscribe_chat(channel_id: str, chat_id: int):
+    """Subscribe chat to channel"""
+    async with StrictRedis.from_url(REDIS_URL, decode_responses=True) as redis:
+        await redis.sadd(channel_id, chat_id)
+
+
 async def spread_notifications(subscribers: Iterable[int], channel_id: str, message: str) -> None:
     """Send notifications to subscribers."""
     msg = f"{html.italic(channel_id)}\n\n{message}"
@@ -43,7 +49,7 @@ async def spread_notifications(subscribers: Iterable[int], channel_id: str, mess
         try:
             await bot.send_message(chat_id, msg)
         except TelegramForbiddenError:
-            logging.warning("Failed to send message to %d: Forbidden. Unsubscribing...", chat_id)
+            logging.warning("Failed to send message to %s: Forbidden. Unsubscribing...", chat_id)
             # Unsubscribe
             await unsubscribe_chat(channel_id, chat_id)
         except AiogramError as e:
@@ -77,9 +83,9 @@ async def subscribe_handler(message: Message) -> None:
     """Handler for `/subscribe` command"""
     try:
         channel_id = message.text.split()[1]
-        async with StrictRedis.from_url(REDIS_URL, decode_responses=True) as redis:
-            await redis.sadd(channel_id, message.chat.id)
+        await subscribe_chat(channel_id, message.chat.id)
         await message.answer(f"Subscribed to {html.italic(channel_id)}")
+        logging.info("Subscribed chat %d to %s", message.chat.id, channel_id)
     except (IndexError, TypeError):
         await message.answer("Please provide a channel id\n"
                              f"Use {html.code('/subscribe [channel_id]')} to subscribe to a channel.")
