@@ -1,5 +1,7 @@
 """App getting notifications through API and sending them to Telegram."""
 import asyncio
+import logging
+import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Body, Response
 from redis.asyncio import StrictRedis
@@ -36,6 +38,13 @@ async def lifespan(application: FastAPI):  # pylint: disable=unused-argument  # 
 
 app = FastAPI(lifespan=lifespan)
 app.add_api_route(WEBHOOK_PATH, bot_webhook, methods=["POST"])  # Webhook handler
+
+# Configure logging
+logging.basicConfig(
+    level="INFO",
+    format="[%(filename)s:%(lineno)d (%(funcName)s)] %(asctime)s %(levelname)s \t %(message)s",
+    stream=sys.stderr,
+)
 
 
 @app.post("/notification")
