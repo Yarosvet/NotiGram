@@ -2,6 +2,8 @@
 import asyncio
 import logging
 import sys
+import os
+import signal
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Body, Response
 from redis.asyncio import StrictRedis
@@ -22,7 +24,11 @@ async def lifespan(application: FastAPI):  # pylint: disable=unused-argument  # 
             )
     else:
         await bot.delete_webhook()
-        polling_task = asyncio.create_task(start_polling())
+
+        def _kill():
+            os.kill(os.getpid(), signal.SIGKILL)
+
+        polling_task = asyncio.create_task(start_polling(on_stop=_kill))
     try:
         await init_bot_meta()
         yield
@@ -52,7 +58,7 @@ async def handle_notification(channel_id: str, payload: str = Body(media_type="t
     """Send notification to the Telegram channel."""
     # Get subscribers from redis
     async with StrictRedis.from_url(REDIS_URL, decode_responses=True) as redis:
-        subscribers = await redis.smembers(channel_id)
+        subscribers = await redis.smembers(f"channel:{channel_id}")
     # Send notifications
     await spread_notifications(subscribers, channel_id, payload)
     # Return success status
