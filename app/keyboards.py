@@ -1,7 +1,7 @@
 """Keyboards for the bot"""
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-from . import strings
+from . import config
 
 
 def make_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
@@ -16,9 +16,9 @@ def make_row_keyboard(items: list[str]) -> ReplyKeyboardMarkup:
 
 def main_keyboard() -> ReplyKeyboardMarkup:
     """Main keyboard"""
-    return make_row_keyboard([strings.SUBSCRIBE_BTN])
+    return make_row_keyboard([config.SUBSCRIBE_BTN])
 
 
 def cancel_keyboard() -> ReplyKeyboardMarkup:
     """Cancel keyboard"""
-    return make_row_keyboard([strings.CANCEL_BTN])
+    return make_row_keyboard([config.CANCEL_BTN])

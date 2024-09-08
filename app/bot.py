@@ -9,20 +9,19 @@ from aiogram.exceptions import AiogramError, TelegramForbiddenError
 from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import StrictRedis
 
-from .config import TELEGRAM_TOKEN, REDIS_URL
-from . import strings, handlers
+from . import config, handlers
 from .actions import unsubscribe_chat
 
-dp = Dispatcher(storage=RedisStorage(StrictRedis.from_url(REDIS_URL)))
+dp = Dispatcher(storage=RedisStorage(StrictRedis.from_url(config.REDIS_URL)))
 dp.include_router(handlers.router)
-bot = Bot(token=TELEGRAM_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(token=config.TELEGRAM_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 
 async def init_bot_meta():
     """Initialize bot meta"""
     await bot.set_my_commands([
-        BotCommand(command="/start", description=strings.DESC_START),
-        BotCommand(command="/unsubscribe", description=strings.DESC_UNSUBSCRIBE),
+        BotCommand(command="/start", description=config.DESC_START),
+        BotCommand(command="/unsubscribe", description=config.DESC_UNSUBSCRIBE),
     ])
 
 
@@ -36,7 +35,7 @@ async def spread_notifications(subscribers: Iterable[int], channel_id: str, mess
     """Send notifications to subscribers."""
     for chat_id in subscribers:
         try:
-            await bot.send_message(chat_id, strings.NOTIFICATION_MSG.format(channel_id=channel_id, message=message))
+            await bot.send_message(chat_id, config.NOTIFICATION_MSG.format(channel_id=channel_id, message=message))
         except TelegramForbiddenError:
             logging.warning("Failed to send message to %s: Forbidden. Unsubscribing...", chat_id)
             # Unsubscribe

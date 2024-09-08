@@ -5,7 +5,7 @@ from aiogram.types import Message
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
-from . import strings
+from . import config
 from .keyboards import main_keyboard, cancel_keyboard
 
 from .actions import unsubscribe_chat, subscribe_chat
@@ -24,7 +24,7 @@ async def start_handler(message: Message, state: FSMContext):
     # Clear context
     await state.clear()
     # Answer for /start
-    await message.answer(strings.CMD_START.format(name=message.from_user.full_name),
+    await message.answer(config.CMD_START.format(name=message.from_user.full_name),
                          reply_markup=main_keyboard())
     # Channel provided?
     if len(message.text.split()) >= 2:
@@ -32,46 +32,34 @@ async def start_handler(message: Message, state: FSMContext):
         channel_id = message.text.split()[1]
         await subscribe_chat(channel_id, message.chat.id)
         await message.answer(
-            strings.SUBSCRIBED_TO.format(channel_id=channel_id),
+            config.SUBSCRIBED_TO.format(channel_id=channel_id),
             reply_markup=main_keyboard()
         )
 
 
-@router.message(F.text, StateFilter(None))
+@router.message(StateFilter(None), F.text.in_(config.ALL_BUTTONS))
 async def subscribe(message: Message, state: FSMContext):
     """Handler for subscribe button"""
-    if message.text == strings.SUBSCRIBE_BTN:
-        await message.answer(strings.SUBSCRIBE_CHANNEL_PROMPT, reply_markup=cancel_keyboard())
+    if message.text == config.SUBSCRIBE_BTN:
+        await message.answer(config.SUBSCRIBE_PROMPT, reply_markup=cancel_keyboard())
         await state.set_state(SubscribeStates.waiting_channel_id)
 
 
 @router.message(F.text, StateFilter(SubscribeStates.waiting_channel_id))
 async def subscribe_channel(message: Message, state: FSMContext):
     """Handler for channel id"""
-    if message.text == strings.CANCEL_BTN:
+    if message.text == config.CANCEL_BTN:
         await state.clear()
-        await message.answer(strings.CMD_START.format(name=message.from_user.full_name),
+        await message.answer(config.CMD_START.format(name=message.from_user.full_name),
                              reply_markup=main_keyboard())
         return
     channel_id = message.text
     await subscribe_chat(channel_id, message.chat.id)
     await message.answer(
-        strings.SUBSCRIBED_TO.format(channel_id=channel_id),
+        config.SUBSCRIBED_TO.format(channel_id=channel_id),
         reply_markup=main_keyboard()
     )
     await state.clear()
-
-
-# @dp.message(Command("subscribe"))
-# async def subscribe_handler(message: Message) -> None:
-#     """Handler for `/subscribe` command"""
-#     try:
-#         channel_id = message.text.split()[1]
-#         await subscribe_chat(channel_id, message.chat.id)
-#         await message.answer(strings.SUBSCRIBED_TO.format(channel_id=channel_id))
-#         logging.info("Subscribed chat %d to %s", message.chat.id, channel_id)
-#     except (IndexError, TypeError):
-#         await message.answer(strings.SUBSC_CHANNEL_ERROR)
 
 
 @router.message(Command("unsubscribe"))
@@ -80,6 +68,6 @@ async def unsubscribe_handler(message: Message):
     try:
         channel_id = message.text.split()[1]
         await unsubscribe_chat(channel_id, message.chat.id)
-        await message.answer(strings.UNSUBSCRIBED_FROM.format(channel_id))
+        await message.answer(config.UNSUBSCRIBED_FROM.format(channel_id))
     except (IndexError, TypeError):
-        await message.answer(strings.UNSUBSC_CHANNEL_ERROR)
+        await message.answer(config.UNSUBSCRIBE_ERROR)
