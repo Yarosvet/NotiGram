@@ -1,26 +1,27 @@
 """Telegram bot module"""
 import logging
-from collections.abc import Iterable
-from aiogram import Bot, Dispatcher, html
+from collections.abc import Iterable, Callable
+from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, Update, BotCommand
+from aiogram.types import Update, BotCommand
 from aiogram.exceptions import AiogramError, TelegramForbiddenError
+from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import StrictRedis
 
-from .config import TELEGRAM_TOKEN, REDIS_URL
+from . import config, handlers
+from .actions import unsubscribe_chat
 
-dp = Dispatcher()
-bot = Bot(token=TELEGRAM_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+dp = Dispatcher(storage=RedisStorage(StrictRedis.from_url(config.REDIS_URL)))
+dp.include_router(handlers.router)
+bot = Bot(token=config.TELEGRAM_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 
 async def init_bot_meta():
     """Initialize bot meta"""
     await bot.set_my_commands([
-        BotCommand(command="/start", description="Start bot"),
-        BotCommand(command="/subscribe", description="Subscribe to a channel"),
-        BotCommand(command="/unsubscribe", description="Unsubscribe from a channel"),
+        BotCommand(command="/start", description=config.DESC_START),
+        BotCommand(command="/unsubscribe", description=config.DESC_UNSUBSCRIBE),
     ])
 
 
@@ -30,24 +31,11 @@ async def bot_webhook(update: dict):
     await dp.feed_update(bot, telegram_update)
 
 
-async def unsubscribe_chat(channel_id: str, chat_id: int):
-    """Unsubscribe chat from channel"""
-    async with StrictRedis.from_url(REDIS_URL, decode_responses=True) as redis:
-        await redis.srem(channel_id, chat_id)
-
-
-async def subscribe_chat(channel_id: str, chat_id: int):
-    """Subscribe chat to channel"""
-    async with StrictRedis.from_url(REDIS_URL, decode_responses=True) as redis:
-        await redis.sadd(channel_id, chat_id)
-
-
 async def spread_notifications(subscribers: Iterable[int], channel_id: str, message: str) -> None:
     """Send notifications to subscribers."""
-    msg = f"{html.italic(channel_id)}\n\n{message}"
     for chat_id in subscribers:
         try:
-            await bot.send_message(chat_id, msg)
+            await bot.send_message(chat_id, config.NOTIFICATION_MSG.format(channel_id=channel_id, message=message))
         except TelegramForbiddenError:
             logging.warning("Failed to send message to %s: Forbidden. Unsubscribing...", chat_id)
             # Unsubscribe
@@ -56,48 +44,8 @@ async def spread_notifications(subscribers: Iterable[int], channel_id: str, mess
             logging.error("Failed to send message to %d: %s", chat_id, str(e))
 
 
-async def start_polling():
+async def start_polling(on_stop: Callable = None):
     """Start polling the dispatcher."""
     await dp.start_polling(bot)
-
-
-@dp.message(CommandStart())
-async def start_handler(message: Message) -> None:
-    """Handler for `/start` command"""
-    # Answer for /start
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!\n"
-                         f" I'm a bot that can send you notifications."
-                         f" Use {html.code('/subscribe [channel_id]')} to get notifications from a channel.")
-    # Channel provided?
-    if len(message.text.split()) >= 2:
-        # Subscribe
-        channel_id = message.text.split()[1]
-        async with StrictRedis.from_url(REDIS_URL, decode_responses=True) as redis:
-            await redis.sadd(channel_id, message.chat.id)
-        await message.answer(f"Subscribed to {html.italic(channel_id)}")
-        return
-
-
-@dp.message(Command("subscribe"))
-async def subscribe_handler(message: Message) -> None:
-    """Handler for `/subscribe` command"""
-    try:
-        channel_id = message.text.split()[1]
-        await subscribe_chat(channel_id, message.chat.id)
-        await message.answer(f"Subscribed to {html.italic(channel_id)}")
-        logging.info("Subscribed chat %d to %s", message.chat.id, channel_id)
-    except (IndexError, TypeError):
-        await message.answer("Please provide a channel id\n"
-                             f"Use {html.code('/subscribe [channel_id]')} to subscribe to a channel.")
-
-
-@dp.message(Command("unsubscribe"))
-async def unsubscribe_handler(message: Message) -> None:
-    """Handler for `/unsubscribe` command"""
-    try:
-        channel_id = message.text.split()[1]
-        await unsubscribe_chat(channel_id, message.chat.id)
-        await message.answer(f"Unsubscribed from {html.italic(channel_id)}")
-    except (IndexError, TypeError):
-        await message.answer("Please provide a channel id\n"
-                             f"Use {html.code('/unsubscribe [channel_id]')} to unsubscribe from a channel.")
+    if on_stop:
+        on_stop()
