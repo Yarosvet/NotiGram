@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "notigram"
+version = "1.2.0"
+description = "Send notifications from your apps to users in Telegram "
+authors = ["Yarosvet"]
+readme = "README.md"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+aiogram = "^3.13.0"
+fastapi = "^0.115.0"
+redis = "^5.0.8"
+uvicorn = "^0.30.6"
+gunicorn = "^23.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^3.2.7"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,10 +1,11 @@
 FROM python:3.11-alpine
-
 WORKDIR /opt/notigram/
 
-ADD app app
-ADD requirements.txt requirements.txt
+RUN pip install poetry
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --without dev --no-root
 
-RUN pip install -r requirements.txt
+COPY notigram notigram
 
-CMD gunicorn -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 app:app
+EXPOSE 8000/tcp
+CMD ["poetry", "run", "gunicorn", "--worker-class=uvicorn.workers.UvicornWorker", "--bind=0.0.0.0:8000", "notigram:app"]
