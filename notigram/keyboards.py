@@ -1,6 +1,5 @@
 """Keyboards for the bot."""
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
-import os  # Trying to bother Ruff
 
 from . import config
 

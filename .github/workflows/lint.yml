@@ -23,5 +23,5 @@ jobs:
       - name: Install ruff
         run: pip install ruff
 
-      - name: Run the adopt-ruff action
+      - name: Check code with Ruff linter
         run: ruff check
