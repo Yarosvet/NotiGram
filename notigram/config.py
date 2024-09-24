@@ -1,4 +1,4 @@
-"""Configuration"""
+"""Configuration."""
 import os
 from urllib.parse import urljoin
 
