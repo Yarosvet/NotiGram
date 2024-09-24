@@ -1,12 +1,13 @@
-"""Telegram bot module"""
+"""Telegram bot module."""
 import logging
-from collections.abc import Iterable, Callable
+from collections.abc import Callable, Iterable
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.types import Update, BotCommand
 from aiogram.exceptions import AiogramError, TelegramForbiddenError
 from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.types import BotCommand, Update
 from redis.asyncio import StrictRedis
 
 from . import config, handlers
@@ -18,7 +19,7 @@ bot = Bot(token=config.TELEGRAM_TOKEN, default=DefaultBotProperties(parse_mode=P
 
 
 async def init_bot_meta():
-    """Initialize bot meta"""
+    """Initialize bot meta."""
     await bot.set_my_commands([
         BotCommand(command="/start", description=config.DESC_START),
         BotCommand(command="/unsubscribe", description=config.DESC_UNSUBSCRIBE),
@@ -26,7 +27,7 @@ async def init_bot_meta():
 
 
 async def bot_webhook(update: dict):
-    """Webhook handler"""
+    """Webhook handler."""
     telegram_update = Update.model_validate(update, context={"bot": bot})
     await dp.feed_update(bot, telegram_update)
 

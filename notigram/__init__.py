@@ -1,19 +1,20 @@
 """App getting notifications through API and sending them to Telegram."""
 import asyncio
 import logging
-import sys
 import os
 import signal
+import sys
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Body, Response
+
+from fastapi import Body, FastAPI, Response
 from redis.asyncio import StrictRedis
 
-from .bot import bot, bot_webhook, start_polling, spread_notifications, init_bot_meta
-from .config import WEBHOOK_URL, USE_WEBHOOK, WEBHOOK_PATH, REDIS_URL
+from .bot import bot, bot_webhook, init_bot_meta, spread_notifications, start_polling
+from .config import REDIS_URL, USE_WEBHOOK, WEBHOOK_PATH, WEBHOOK_URL
 
 
 @asynccontextmanager
-async def lifespan(application: FastAPI):  # pylint: disable=unused-argument  # noqa
+async def lifespan(application: FastAPI):
     """(FastAPI lifespan) Set up webhook if needed and close the session after the app is done."""
     polling_task = None
     if USE_WEBHOOK:

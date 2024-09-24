@@ -31,7 +31,7 @@ pip install -r requirements.txt
 ```
 And run the bot using Gunicorn:
 ```bash
-gunicorn -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 app:app
+gunicorn -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 notigram:app
 ```
 
 ## Usage
