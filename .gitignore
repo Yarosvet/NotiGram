@@ -3,4 +3,3 @@ venv/
 .idea/
 __pycache__/
 *.env
-poetry.lock
