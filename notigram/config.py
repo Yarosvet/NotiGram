@@ -20,6 +20,7 @@ UNSUBSCRIBED_FROM = os.getenv('UNSUBSCRIBED_FROM', "Unsubscribed from <i>{channe
 UNSUBSCRIBE_ERROR = os.getenv('UNSUBSCRIBE_ERROR', """Please provide a channel id
 Use  /unsubscribe [channel_id]  to unsubscribe from a channel.""")
 SUBSCRIBE_BTN = os.getenv('SUBSCRIBE_BTN', "Subscribe")
+UNSUBSCRIBE_BTN = os.getenv('UNSUBSCRIBE_BTN', "Unsubscribe")
 CANCEL_BTN = os.getenv('CANCEL_BTN', "Cancel")
 SUBSCRIBE_PROMPT = os.getenv('SUBSCRIBE_PROMPT', "Please write the channel_id you want to subscribe to")
 NOTIFICATION_MSG = os.getenv('NOTIFICATION_MSG', "<i>{channel_id}</i>\n\n{message}")

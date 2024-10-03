@@ -72,3 +72,12 @@ async def unsubscribe_handler(message: Message):
         await message.answer(config.UNSUBSCRIBED_FROM.format(channel_id))
     except (IndexError, TypeError):
         await message.answer(config.UNSUBSCRIBE_ERROR)
+
+
+@router.callback_query(lambda c: c.data and c.data.startswith("unsubscribe"))
+async def unsubscribe_callback(query):
+    """Handler for unsubscribe callback."""
+    channel_id = query.data.removeprefix("unsubscribe:")
+    await unsubscribe_chat(channel_id, query.message.chat.id)
+    await query.message.answer(config.UNSUBSCRIBED_FROM.format(channel_id=channel_id))
+    await query.answer()
