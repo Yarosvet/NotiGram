@@ -78,5 +78,6 @@ extend-select = [
 ignore=[
     "D211",
     "D213",
-    "D401"
+    "D401",
+    "D203"
 ]

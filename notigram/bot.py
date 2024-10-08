@@ -1,4 +1,5 @@
 """Telegram bot module."""
+
 import logging
 from collections.abc import Callable, Iterable
 
@@ -10,9 +11,8 @@ from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand, Update
 from redis.asyncio import StrictRedis
 
-from . import config, handlers
+from . import config, handlers, keyboards
 from .actions import unsubscribe_chat
-from . import keyboards
 
 dp = Dispatcher(storage=RedisStorage(StrictRedis.from_url(config.REDIS_URL)))
 dp.include_router(handlers.router)
@@ -21,10 +21,12 @@ bot = Bot(token=config.TELEGRAM_TOKEN, default=DefaultBotProperties(parse_mode=P
 
 async def init_bot_meta():
     """Initialize bot meta."""
-    await bot.set_my_commands([
-        BotCommand(command="/start", description=config.DESC_START),
-        BotCommand(command="/unsubscribe", description=config.DESC_UNSUBSCRIBE),
-    ])
+    await bot.set_my_commands(
+        [
+            BotCommand(command="/start", description=config.DESC_START),
+            BotCommand(command="/unsubscribe", description=config.DESC_UNSUBSCRIBE),
+        ]
+    )
 
 
 async def bot_webhook(update: dict):

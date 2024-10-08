@@ -1,4 +1,5 @@
 """Router for handling users commands and messages."""
+
 from aiogram import F, Router
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -13,7 +14,6 @@ router = Router()
 
 
 class SubscribeStates(StatesGroup):
-
     """State machine for subscribing to a channel."""
 
     waiting_channel_id = State()
@@ -25,17 +25,13 @@ async def start_handler(message: Message, state: FSMContext):
     # Clear context
     await state.clear()
     # Answer for /start
-    await message.answer(config.CMD_START.format(name=message.from_user.full_name),
-                         reply_markup=main_keyboard())
+    await message.answer(config.CMD_START.format(name=message.from_user.full_name), reply_markup=main_keyboard())
     # Channel provided?
     if len(message.text.split()) >= 2:  # noqa: PLR2004
         # Subscribe
         channel_id = message.text.split()[1]
         await subscribe_chat(channel_id, message.chat.id)
-        await message.answer(
-            config.SUBSCRIBED_TO.format(channel_id=channel_id),
-            reply_markup=main_keyboard()
-        )
+        await message.answer(config.SUBSCRIBED_TO.format(channel_id=channel_id), reply_markup=main_keyboard())
 
 
 @router.message(StateFilter(None), F.text.in_(config.ALL_BUTTONS))
@@ -51,15 +47,11 @@ async def subscribe_channel(message: Message, state: FSMContext):
     """Handler for channel id."""
     if message.text == config.CANCEL_BTN:
         await state.clear()
-        await message.answer(config.CMD_START.format(name=message.from_user.full_name),
-                             reply_markup=main_keyboard())
+        await message.answer(config.CMD_START.format(name=message.from_user.full_name), reply_markup=main_keyboard())
         return
     channel_id = message.text
     await subscribe_chat(channel_id, message.chat.id)
-    await message.answer(
-        config.SUBSCRIBED_TO.format(channel_id=channel_id),
-        reply_markup=main_keyboard()
-    )
+    await message.answer(config.SUBSCRIBED_TO.format(channel_id=channel_id), reply_markup=main_keyboard())
     await state.clear()
 
 

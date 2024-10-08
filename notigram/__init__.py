@@ -1,4 +1,5 @@
 """App getting notifications through API and sending them to Telegram."""
+
 import asyncio
 import logging
 import os
@@ -20,9 +21,7 @@ async def lifespan(application: FastAPI):
     if USE_WEBHOOK:
         webhook_info = await bot.get_webhook_info()
         if webhook_info.url != WEBHOOK_URL:
-            await bot.set_webhook(
-                url=WEBHOOK_URL
-            )
+            await bot.set_webhook(url=WEBHOOK_URL)
     else:
         await bot.delete_webhook()
 

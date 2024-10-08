@@ -1,5 +1,6 @@
 """Keyboards for the bot."""
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
 
 from . import config
 
@@ -27,7 +28,5 @@ def cancel_keyboard() -> ReplyKeyboardMarkup:
 def unsubscribe_inline_keyboard(channel_id: str) -> InlineKeyboardMarkup:
     """Unsubscribe inline keyboard."""
     return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text=config.UNSUBSCRIBE_BTN, callback_data=f"unsubscribe:{channel_id}")]
-        ]
-   )
+        inline_keyboard=[[InlineKeyboardButton(text=config.UNSUBSCRIBE_BTN, callback_data=f"unsubscribe:{channel_id}")]]
+    )
