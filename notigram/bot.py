@@ -1,4 +1,5 @@
 """Telegram bot module."""
+
 import logging
 from collections.abc import Callable, Iterable
 
@@ -10,7 +11,7 @@ from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand, Update
 from redis.asyncio import StrictRedis
 
-from . import config, handlers
+from . import config, handlers, keyboards
 from .actions import unsubscribe_chat
 
 dp = Dispatcher(storage=RedisStorage(StrictRedis.from_url(config.REDIS_URL)))
@@ -20,10 +21,12 @@ bot = Bot(token=config.TELEGRAM_TOKEN, default=DefaultBotProperties(parse_mode=P
 
 async def init_bot_meta():
     """Initialize bot meta."""
-    await bot.set_my_commands([
-        BotCommand(command="/start", description=config.DESC_START),
-        BotCommand(command="/unsubscribe", description=config.DESC_UNSUBSCRIBE),
-    ])
+    await bot.set_my_commands(
+        [
+            BotCommand(command="/start", description=config.DESC_START),
+            BotCommand(command="/unsubscribe", description=config.DESC_UNSUBSCRIBE),
+        ]
+    )
 
 
 async def bot_webhook(update: dict):
@@ -36,7 +39,11 @@ async def spread_notifications(subscribers: Iterable[int], channel_id: str, mess
     """Send notifications to subscribers."""
     for chat_id in subscribers:
         try:
-            await bot.send_message(chat_id, config.NOTIFICATION_MSG.format(channel_id=channel_id, message=message))
+            await bot.send_message(
+                chat_id,
+                config.NOTIFICATION_MSG.format(channel_id=channel_id, message=message),
+                reply_markup=keyboards.unsubscribe_inline_keyboard(channel_id),
+            )
         except TelegramForbiddenError:
             logging.warning("Failed to send message to %s: Forbidden. Unsubscribing...", chat_id)
             # Unsubscribe

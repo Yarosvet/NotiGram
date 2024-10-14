@@ -1,4 +1,5 @@
 """Actions with subscriptions to channels in Redis."""
+
 from redis.asyncio import StrictRedis
 
 from .config import REDIS_URL
