@@ -8,13 +8,11 @@ on:
       - main
 
 jobs:
-  ruff:
+  hadolint:
+    name: Hadolint
     runs-on: ubuntu-latest
-    container:
-      image: hadolint/hadolint:latest
-    steps:
       - name: Check out repository code
         uses: actions/checkout@v4
 
       - name: Check code with Hadolint
-        run: hadolint Dockerfile
+        uses: jbergstroem/hadolint-gh-action@v1
