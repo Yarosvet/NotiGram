@@ -16,3 +16,5 @@ jobs:
 
       - name: Check code with Hadolint
         uses: jbergstroem/hadolint-gh-action@v1
+        with:
+          error_level: 1
