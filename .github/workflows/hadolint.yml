@@ -1,0 +1,19 @@
+name: Check Dockerfile with hadolint
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    container: hadolint/hadolint
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Check code with Hadolint
+        run: hadolint Dockerfile
