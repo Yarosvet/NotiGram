@@ -10,7 +10,8 @@ on:
 jobs:
   ruff:
     runs-on: ubuntu-latest
-    container: hadolint/hadolint
+    container:
+      image: hadolint/hadolint:latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
