@@ -6,6 +6,7 @@ import (
 	"github.com/Yarosvet/NotiGram/internal/bot"
 	"github.com/Yarosvet/NotiGram/internal/config"
 	"github.com/Yarosvet/NotiGram/internal/logger"
+	"github.com/Yarosvet/NotiGram/internal/strings"
 )
 
 func Main() {
@@ -19,7 +20,12 @@ func Main() {
 		log.Fatalf("Error initializing logger: %v", err)
 	}
 
-	b, err := bot.NewBot(cfg.TelegramToken)
+	strs, err := strings.Load(cfg.StringsConfig)
+	if err != nil {
+		log.Fatalf("Error loading strings: %v", err)
+	}
+
+	b, err := bot.NewBot(cfg.TelegramToken, *strs)
 	if err != nil {
 		log.Fatalf("Error creating the bot: %v", err)
 	}

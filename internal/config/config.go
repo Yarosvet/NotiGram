@@ -8,6 +8,7 @@ type Config struct {
 	TelegramToken string `env:"TELEGRAM_TOKEN"`
 	LogLevel      string `env:"LOG_LEVEL" def:"info"`
 	Dev           bool   `env:"DEV" def:"false"`
+	StringsConfig string `env:"STRINGS_CONFIG" def:""`
 }
 
 func NewConfig() (*Config, error) {
