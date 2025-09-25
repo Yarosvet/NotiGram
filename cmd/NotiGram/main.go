@@ -6,6 +6,7 @@ import (
 	"github.com/Yarosvet/NotiGram/internal/bot"
 	"github.com/Yarosvet/NotiGram/internal/config"
 	"github.com/Yarosvet/NotiGram/internal/logger"
+	"github.com/Yarosvet/NotiGram/internal/storage"
 	"github.com/Yarosvet/NotiGram/internal/strings"
 )
 
@@ -29,5 +30,7 @@ func Main() {
 	if err != nil {
 		log.Fatalf("Error creating the bot: %v", err)
 	}
-	bot.Run(b, logger.Logger())
+
+	redisConfig := storage.DefaultRedisConfig(cfg.RedisUrl)
+	bot.Run(b, logger.Logger(), &redisConfig)
 }

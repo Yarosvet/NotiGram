@@ -7,6 +7,7 @@ import (
 type Config struct {
 	TelegramToken string `env:"TELEGRAM_TOKEN"`
 	LogLevel      string `env:"LOG_LEVEL" def:"info"`
+	RedisUrl      string `env:"REDIS_URL"`
 	Dev           bool   `env:"DEV" def:"false"`
 	StringsConfig string `env:"STRINGS_CONFIG" def:""`
 }

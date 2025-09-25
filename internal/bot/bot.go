@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/Yarosvet/NotiGram/internal/storage"
 	"github.com/Yarosvet/NotiGram/internal/strings"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
@@ -30,7 +31,7 @@ func configureBot(bot *Bot) error {
 	return nil
 }
 
-func Run(b *Bot, l *zap.Logger) {
+func Run(b *Bot, l *zap.Logger, r *storage.RedisConfig) {
 	l.Info("Starting bot", zap.String("username", b.api.Self.UserName))
 	err := configureBot(b)
 	if err != nil {
@@ -39,11 +40,11 @@ func Run(b *Bot, l *zap.Logger) {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 	updates := b.api.GetUpdatesChan(u)
+	handlerDeps := HandlerDeps{Bot: b, Logger: l, RedisConfig: r}
 	for update := range updates {
-		err := HandleUpdate(b.api, update)
+		err := HandleUpdate(update, &handlerDeps)
 		if err != nil {
 			l.Error("Failed to handle update", zap.Error(err))
 		}
 	}
-
 }
