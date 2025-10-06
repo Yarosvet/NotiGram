@@ -37,12 +37,36 @@ func handleStart(msg *tgbotapi.Message, deps *HandlerDeps) error {
 	return nil
 }
 
+func handleList(msg *tgbotapi.Message, deps *HandlerDeps) error {
+	list, err := storage.List(msg.Chat.ID, deps.Logger, deps.RedisConfig)
+	if err != nil {
+		return err
+	}
+	if len(*list) == 0 {
+		_, err = deps.Bot.api.Send(tgbotapi.NewMessage(msg.Chat.ID, deps.Bot.strings.NoSubscriptionsMessage))
+		return err
+	}
+	formattedList := make([]string, len(*list))
+	for i := range *list {
+		(formattedList)[i] = fmt.Sprintf(deps.Bot.strings.SubscriptionsListItemFormat, (*list)[i])
+	}
+	_, err = deps.Bot.api.Send(
+		tgbotapi.NewMessage(
+			msg.Chat.ID,
+			fmt.Sprintf(deps.Bot.strings.SubscriptionsListFormat, stdstrings.Join(formattedList, "\n")),
+		),
+	)
+	return err
+}
+
 func HandleUpdate(update tgbotapi.Update, deps *HandlerDeps) error {
 	deps.Logger.Debug("Received update", zap.Any("update", update))
 	if update.Message != nil && update.Message.IsCommand() {
 		switch update.Message.Command() {
 		case "start":
 			return handleStart(update.Message, deps)
+		case "list":
+			return handleList(update.Message, deps)
 		}
 	}
 	return nil

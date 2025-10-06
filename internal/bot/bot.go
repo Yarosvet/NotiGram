@@ -23,6 +23,7 @@ func NewBot(token string, strings strings.Strings) (*Bot, error) {
 func configureBot(bot *Bot) error {
 	commands := tgbotapi.NewSetMyCommands(
 		tgbotapi.BotCommand{Command: "/start", Description: bot.strings.StartCommandDescription},
+		tgbotapi.BotCommand{Command: "/list", Description: bot.strings.ListCommandDescription},
 	)
 	_, err := bot.api.Request(commands)
 	if err != nil {
