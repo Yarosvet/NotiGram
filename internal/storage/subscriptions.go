@@ -16,3 +16,13 @@ func Subscribe(chatID int64, channelID string, logger *zap.Logger, redisConfig *
 	logger.Info("User subscribed", zap.Int64("userID", chatID), zap.String("channelID", channelID))
 	return nil
 }
+
+func Unsubscribe(chatID int64, channelID string, logger *zap.Logger, redisConfig *RedisConfig) error {
+	redis, err := NewRedisClient(context.TODO(), redisConfig, logger)
+	if err != nil {
+		return err
+	}
+	redis.Del(context.TODO(), "sub:"+strconv.FormatInt(chatID, 10)+":"+channelID)
+	logger.Info("User unsubscribed", zap.Int64("userID", chatID), zap.String("channelID", channelID))
+	return nil
+}
