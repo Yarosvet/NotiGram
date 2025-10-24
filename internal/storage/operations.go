@@ -9,8 +9,9 @@ import (
 )
 
 type QueuedMessage struct {
-	ChatID  int64   `json:"chat_id"`
-	Message *string `json:"message"`
+	ChannelID string  `json:"channel_id"`
+	ChatID    int64   `json:"chat_id"`
+	Message   *string `json:"message"`
 }
 
 const MessagesListID = "messages"
@@ -53,7 +54,7 @@ func QueueMessage(channelID string, msg *string, logger *zap.Logger, redisConfig
 			logger.Error("Failed to parse chatID from redis", zap.String("chatID", chatID), zap.Error(err))
 			continue
 		}
-		qMsg := QueuedMessage{ChatID: intChatID, Message: msg}
+		qMsg := QueuedMessage{ChannelID: channelID, ChatID: intChatID, Message: msg}
 		jsonMsg, err := json.Marshal(qMsg)
 		if err != nil {
 			logger.Error("Failed to marshal queued message", zap.Int64("chatID", intChatID), zap.Error(err))

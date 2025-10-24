@@ -11,6 +11,7 @@ type Strings struct {
 	WelcomeMessage     string `json:"welcome_message"`
 	SubscribedFormat   string `json:"subscribed_format"`
 	UnsubscribedFormat string `json:"unsubscribed_format"`
+	UnsubscribeButton  string `json:"unsubscribe_button"`
 }
 
 func defaultStrings() Strings {
@@ -19,6 +20,7 @@ func defaultStrings() Strings {
 		WelcomeMessage:          "Welcome to NotiGram!",
 		SubscribedFormat:        "You have subscribed to channel %s",
 		UnsubscribedFormat:      "You have unsubscribed from channel %s",
+		UnsubscribeButton:       "Unsubscribe",
 	}
 }
 

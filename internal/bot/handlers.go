@@ -35,7 +35,6 @@ func commandSubscribe(cmd string, msg *tgbotapi.Message, deps *HandlerDeps) erro
 	return err
 }
 
-// TODO: 'unsubscribe' inline button under notification message
 func commandUnsubscribe(cmd string, msg *tgbotapi.Message, deps *HandlerDeps) error {
 	args := stdstrings.SplitN(cmd, "-", 2)
 	if len(args) < 2 {
@@ -74,6 +73,35 @@ func handleStart(msg *tgbotapi.Message, deps *HandlerDeps) error {
 	return err
 }
 
+func callbackUnsubscribe(data string, query *tgbotapi.CallbackQuery, deps *HandlerDeps) error {
+	// Parse data
+	args := stdstrings.SplitN(data, "-", 2)
+	if len(args) < 2 {
+		return ParseError
+	}
+	// Unsubscribe user
+	err := storage.Unsubscribe(query.Message.Chat.ID, args[1], deps.Logger, deps.RedisConfig)
+	if err != nil {
+		return err
+	}
+	// Answer callback
+	_, err = deps.Bot.api.Request(tgbotapi.NewCallback(query.ID, fmt.Sprintf(deps.Bot.strings.UnsubscribedFormat, args[1])))
+	if err != nil {
+		return err
+	}
+	// Send confirmation message
+	_, err = deps.Bot.api.Send(
+		tgbotapi.NewMessage(
+			query.Message.Chat.ID,
+			fmt.Sprintf(deps.Bot.strings.UnsubscribedFormat, args[1]),
+		),
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func HandleUpdate(update tgbotapi.Update, deps *HandlerDeps) error {
 	deps.Logger.Debug("Received update", zap.Any("update", update))
 	if update.Message != nil && update.Message.IsCommand() {
@@ -81,6 +109,12 @@ func HandleUpdate(update tgbotapi.Update, deps *HandlerDeps) error {
 		case "start":
 			return handleStart(update.Message, deps)
 		}
+	} else if update.CallbackQuery != nil {
+		switch stdstrings.SplitN(update.CallbackQuery.Data, ":", 2)[0] {
+		case "unsub":
+			return callbackUnsubscribe(update.CallbackQuery.Data, update.CallbackQuery, deps)
+		}
+		return callbackUnsubscribe(update.CallbackQuery.Data, update.CallbackQuery, deps)
 	}
 	return nil
 }

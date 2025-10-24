@@ -27,15 +27,21 @@ func ConsumeMessages(bot *Bot, logger *zap.Logger, redisConfig *storage.RedisCon
 		}
 
 		for _, msgStr := range res[1:] {
-			var msg storage.QueuedMessage
-			err := json.Unmarshal([]byte(msgStr), &msg)
+			var qMsg storage.QueuedMessage
+			err := json.Unmarshal([]byte(msgStr), &qMsg)
 			if err != nil {
 				logger.Error("Error unmarshalling queued message", zap.Error(err))
 				continue
 			}
-			_, err = bot.api.Send(tgbotapi.NewMessage(msg.ChatID, *msg.Message))
+			msgConfig := tgbotapi.NewMessage(qMsg.ChatID, *qMsg.Message)
+			msgConfig.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+				tgbotapi.NewInlineKeyboardRow(
+					tgbotapi.NewInlineKeyboardButtonData(bot.strings.UnsubscribeButton, "unsub-"+qMsg.ChannelID),
+				),
+			)
+			_, err = bot.api.Send(msgConfig)
 			if err != nil {
-				logger.Error("Error sending message to user", zap.Int64("chatID", msg.ChatID), zap.Error(err))
+				logger.Error("Error sending message to user", zap.Int64("chatID", qMsg.ChatID), zap.Error(err))
 				continue
 			}
 		}
