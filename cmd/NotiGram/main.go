@@ -3,11 +3,13 @@ package NotiGram
 import (
 	"log"
 
+	"github.com/Yarosvet/NotiGram/internal/api"
 	"github.com/Yarosvet/NotiGram/internal/bot"
 	"github.com/Yarosvet/NotiGram/internal/config"
 	"github.com/Yarosvet/NotiGram/internal/logger"
 	"github.com/Yarosvet/NotiGram/internal/storage"
 	"github.com/Yarosvet/NotiGram/internal/strings"
+	"github.com/gin-gonic/gin"
 )
 
 func Main() {
@@ -32,5 +34,13 @@ func Main() {
 	}
 
 	redisConfig := storage.DefaultRedisConfig(cfg.RedisUrl)
-	bot.Run(b, logger.Logger(), &redisConfig)
+	go bot.Run(b, logger.Logger(), &redisConfig)
+
+	if cfg.Dev {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	api.Run(logger.Logger(), &redisConfig)
 }

@@ -37,6 +37,7 @@ func Run(b *Bot, l *zap.Logger, r *storage.RedisConfig) {
 	if err != nil {
 		l.Fatal("Failed to configure bot", zap.Error(err))
 	}
+	go ConsumeMessages(b, l, r)
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 	updates := b.api.GetUpdatesChan(u)
