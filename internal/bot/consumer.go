@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Yarosvet/NotiGram/internal/storage"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 )
 
@@ -32,7 +33,11 @@ func ConsumeMessages(bot *Bot, logger *zap.Logger, redisConfig *storage.RedisCon
 				logger.Error("Error unmarshalling queued message", zap.Error(err))
 				continue
 			}
-			print(*msg.Message)
+			_, err = bot.api.Send(tgbotapi.NewMessage(msg.ChatID, *msg.Message))
+			if err != nil {
+				logger.Error("Error sending message to user", zap.Int64("chatID", msg.ChatID), zap.Error(err))
+				continue
+			}
 		}
 	}
 }

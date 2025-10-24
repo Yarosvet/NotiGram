@@ -26,6 +26,7 @@ func commandSubscribe(cmd string, msg *tgbotapi.Message, deps *HandlerDeps) erro
 	channelID := args[1]
 	err := storage.Subscribe(msg.Chat.ID, channelID, deps.Logger, deps.RedisConfig)
 	if err != nil {
+		deps.Logger.Error("Failed to subscribe user", zap.Error(err))
 		return err
 	}
 	_, err = deps.Bot.api.Send(
