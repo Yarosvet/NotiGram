@@ -1,11 +1,22 @@
-FROM python:3.11-alpine
-WORKDIR /opt/notigram/
+FROM golang:1.24.4-alpine AS build
+WORKDIR /app
 
-RUN pip install poetry
-COPY pyproject.toml poetry.lock ./
-RUN poetry install --without dev --no-root
+# Download dependencies
+COPY go.mod go.sum ./
+RUN apk add --no-cache git ca-certificates && go mod download
 
-COPY notigram notigram
+COPY . .
 
-EXPOSE 8000/tcp
-CMD ["poetry", "run", "gunicorn", "--worker-class=uvicorn.workers.UvicornWorker", "--bind=0.0.0.0:8000", "notigram:app"]
+# Optimized binary build
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+RUN go build -ldflags="-s -w" -o /app/main .
+
+FROM alpine:3.18 AS runtime
+# Install certificates and create non-root user
+RUN apk add --no-cache ca-certificates && addgroup -S app && adduser -S -G app app
+
+WORKDIR /home/app
+COPY --from=build /app/main ./
+
+USER app
+ENTRYPOINT ["./main"]
