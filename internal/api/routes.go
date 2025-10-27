@@ -14,8 +14,14 @@ func queueMessage(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if err := input.Validate(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	err := storage.QueueMessage(
 		c.Param("channelID"),
+		input.ParseMode,
 		&input.Message,
 		c.MustGet("logger").(*zap.Logger),
 		c.MustGet("redisConfig").(*storage.RedisConfig),

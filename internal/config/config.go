@@ -4,6 +4,8 @@ import (
 	"github.com/caarlos0/env/v11"
 )
 
+// TODO: Add webhooks option
+
 type Config struct {
 	TelegramToken string `env:"TELEGRAM_TOKEN"`
 	LogLevel      string `env:"LOG_LEVEL" def:"info"`

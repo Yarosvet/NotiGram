@@ -10,12 +10,14 @@ import (
 	"go.uber.org/zap"
 )
 
+// TODO: Add message rate limiting
+
 func ConsumeMessages(bot *Bot, logger *zap.Logger, redisConfig *storage.RedisConfig) {
 	redis, err := storage.NewRedisClient(context.TODO(), redisConfig, logger)
 	if err != nil {
 		logger.Error("Error connecting redis for consuming messages", zap.Error(err))
 	}
-	defer redis.Close() // FIX: Unhandled error
+	defer redis.Close() // FIXME: Unhandled error
 
 	for {
 		res, err := redis.BRPop(context.TODO(), time.Second, storage.MessagesListID).Result()
@@ -34,6 +36,7 @@ func ConsumeMessages(bot *Bot, logger *zap.Logger, redisConfig *storage.RedisCon
 				continue
 			}
 			msgConfig := tgbotapi.NewMessage(qMsg.ChatID, *qMsg.Message)
+			msgConfig.ParseMode = qMsg.ParseMode
 			msgConfig.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 				tgbotapi.NewInlineKeyboardRow(
 					tgbotapi.NewInlineKeyboardButtonData(bot.strings.UnsubscribeButton, "unsub-"+qMsg.ChannelID),

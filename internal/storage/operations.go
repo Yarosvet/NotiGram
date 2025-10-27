@@ -12,6 +12,7 @@ type QueuedMessage struct {
 	ChannelID string  `json:"channel_id"`
 	ChatID    int64   `json:"chat_id"`
 	Message   *string `json:"message"`
+	ParseMode string  `json:"parse_mode"`
 }
 
 const MessagesListID = "messages"
@@ -39,7 +40,7 @@ func Unsubscribe(chatID int64, channelID string, logger *zap.Logger, redisConfig
 	return redis.Close()
 }
 
-func QueueMessage(channelID string, msg *string, logger *zap.Logger, redisConfig *RedisConfig) error {
+func QueueMessage(channelID string, parseMode string, msg *string, logger *zap.Logger, redisConfig *RedisConfig) error {
 	redis, err := NewRedisClient(context.TODO(), redisConfig, logger)
 	if err != nil {
 		return err
@@ -54,7 +55,7 @@ func QueueMessage(channelID string, msg *string, logger *zap.Logger, redisConfig
 			logger.Error("Failed to parse chatID from redis", zap.String("chatID", chatID), zap.Error(err))
 			continue
 		}
-		qMsg := QueuedMessage{ChannelID: channelID, ChatID: intChatID, Message: msg}
+		qMsg := QueuedMessage{ChannelID: channelID, ChatID: intChatID, Message: msg, ParseMode: parseMode}
 		jsonMsg, err := json.Marshal(qMsg)
 		if err != nil {
 			logger.Error("Failed to marshal queued message", zap.Int64("chatID", intChatID), zap.Error(err))

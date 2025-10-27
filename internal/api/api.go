@@ -22,5 +22,5 @@ func Run(logger *zap.Logger, redisConfig *storage.RedisConfig) {
 	r := gin.Default()
 	configureMiddleware(r, logger, redisConfig)
 	configureRoutes(r)
-	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080
+	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080  // TODO: make address configurable
 }
