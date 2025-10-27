@@ -16,12 +16,12 @@ type HandlerDeps struct {
 	RedisConfig *storage.RedisConfig
 }
 
-var ParseError = errors.New("failed to parse command")
+var ErrParse = errors.New("failed to parse command")
 
 func commandSubscribe(cmd string, msg *tgbotapi.Message, deps *HandlerDeps) error {
 	args := stdstrings.SplitN(cmd, "-", 2)
 	if len(args) < 2 {
-		return ParseError
+		return ErrParse
 	}
 	channelID := args[1]
 	err := storage.Subscribe(msg.Chat.ID, channelID, deps.Logger, deps.RedisConfig)
@@ -38,7 +38,7 @@ func commandSubscribe(cmd string, msg *tgbotapi.Message, deps *HandlerDeps) erro
 func commandUnsubscribe(cmd string, msg *tgbotapi.Message, deps *HandlerDeps) error {
 	args := stdstrings.SplitN(cmd, "-", 2)
 	if len(args) < 2 {
-		return ParseError
+		return ErrParse
 	}
 	channelID := args[1]
 	err := storage.Unsubscribe(msg.Chat.ID, channelID, deps.Logger, deps.RedisConfig)
@@ -58,12 +58,12 @@ func handleStart(msg *tgbotapi.Message, deps *HandlerDeps) error {
 		switch cmd[0] {
 		case "sub":
 			err := commandSubscribe(words[1], msg, deps)
-			if !errors.Is(err, ParseError) { // All cases when we didn't get ParseError
+			if !errors.Is(err, ErrParse) { // All cases when we didn't get ErrParse
 				return err
 			}
 		case "unsub":
 			err := commandUnsubscribe(words[1], msg, deps)
-			if !errors.Is(err, ParseError) { // All cases when we didn't get ParseError
+			if !errors.Is(err, ErrParse) { // All cases when we didn't get ErrParse
 				return err
 			}
 		}
@@ -77,7 +77,7 @@ func callbackUnsubscribe(data string, query *tgbotapi.CallbackQuery, deps *Handl
 	// Parse data
 	args := stdstrings.SplitN(data, "-", 2)
 	if len(args) < 2 {
-		return ParseError
+		return ErrParse
 	}
 	// Unsubscribe user
 	err := storage.Unsubscribe(query.Message.Chat.ID, args[1], deps.Logger, deps.RedisConfig)
