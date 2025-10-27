@@ -44,3 +44,5 @@ func Main() {
 
 	api.Run(logger.Logger(), &redisConfig)
 }
+
+// TODO: CI/CD with linter and auto-deploy to Dockerhub
