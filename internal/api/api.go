@@ -18,11 +18,11 @@ func configureMiddleware(e *gin.Engine, logger *zap.Logger, redisConfig *storage
 	})
 }
 
-func Run(logger *zap.Logger, redisConfig *storage.RedisConfig) {
+func Run(address string, logger *zap.Logger, redisConfig *storage.RedisConfig) {
 	r := gin.Default()
 	configureMiddleware(r, logger, redisConfig)
 	configureRoutes(r)
-	err := r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080  // TODO: make address configurable
+	err := r.Run(address)
 	if err != nil {
 		logger.Fatal("Failed to run server", zap.Error(err))
 	}

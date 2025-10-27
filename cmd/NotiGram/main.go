@@ -42,5 +42,5 @@ func Main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	api.Run(logger.Logger(), &redisConfig)
+	api.Run(cfg.Address, logger.Logger(), &redisConfig)
 }

@@ -12,6 +12,7 @@ type Config struct {
 	RedisUrl      string `env:"REDIS_URL"`
 	Dev           bool   `env:"DEV" def:"false"`
 	StringsConfig string `env:"STRINGS_CONFIG" def:""`
+	Address       string `env:"ADDRESS" def:"127.0.0.1:8080"`
 }
 
 func NewConfig() (*Config, error) {

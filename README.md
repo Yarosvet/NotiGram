@@ -10,7 +10,7 @@ Feel free to **integrate it with your applications** to send real-time alerts, u
 ## ✨ Features
 
 - 🤖 **Telegram Bot Integration** - Users can subscribe/unsubscribe via `/start` command arguments (see an example)
-- 📬 **Message Queue ** - Redis-backed queue for reliable message delivery
+- 📬 **Message Queue** - Redis-backed queue for reliable message delivery
 - 🌐 **REST API** - Simple HTTP endpoint to queue notifications
 - 🔧 **Configurable** - Environment-based configuration
 - 📝 **Structured Logging** - Using `zap` for high-performance logging
@@ -19,7 +19,6 @@ Feel free to **integrate it with your applications** to send real-time alerts, u
 
 ## 🏗️ Architecture Highlights
 
-### Architecture
 - `cmd/` - Application entry points
 - `internal/api/` - HTTP REST API handlers (Gin framework)
 - `internal/bot/` - Telegram bot logic and update handlers
@@ -56,6 +55,7 @@ REDIS_URL=redis://localhost:6379
 LOG_LEVEL=info
 DEV=false
 STRINGS_CONFIG=strings.json
+ADDRESS=127.0.0.1:8080
 ```
 
 **Configuration Options:**
@@ -64,6 +64,7 @@ STRINGS_CONFIG=strings.json
 - `LOG_LEVEL` (default: `info`) - Log level: debug, info, warn, error
 - `DEV` (default: `false`) - Enable development mode with verbose logging
 - `STRINGS_CONFIG` (optional) - Path to JSON file with custom strings
+- `ADDRESS` (default: `127.0.0.1:8080`) - Address for API to listen on
 
 ### Custom Strings
 
