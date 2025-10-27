@@ -36,7 +36,9 @@ func ConsumeMessages(bot *Bot, logger *zap.Logger, redisConfig *storage.RedisCon
 				continue
 			}
 			msgConfig := tgbotapi.NewMessage(qMsg.ChatID, *qMsg.Message)
-			msgConfig.ParseMode = qMsg.ParseMode
+			if msgConfig.ParseMode != "" {
+				msgConfig.ParseMode = qMsg.ParseMode
+			}
 			msgConfig.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 				tgbotapi.NewInlineKeyboardRow(
 					tgbotapi.NewInlineKeyboardButtonData(bot.strings.UnsubscribeButton, "unsub-"+qMsg.ChannelID),
