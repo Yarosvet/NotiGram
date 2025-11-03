@@ -17,7 +17,12 @@ func ConsumeMessages(bot *Bot, logger *zap.Logger, redisConfig *storage.RedisCon
 	if err != nil {
 		logger.Error("Error connecting redis for consuming messages", zap.Error(err))
 	}
-	defer redis.Close() // FIXME: Unhandled error
+	defer func() {
+		err := redis.Close()
+		if err != nil {
+			logger.Error("Error closing redis connection", zap.Error(err))
+		}
+	}()
 
 	for {
 		res, err := redis.BRPop(context.TODO(), time.Second, storage.MessagesListID).Result()
